@@ -1,0 +1,1 @@
+# model_cieplny_pomieszczenia
