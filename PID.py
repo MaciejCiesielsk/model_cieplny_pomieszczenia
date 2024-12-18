@@ -9,31 +9,32 @@ app.layout = html.Div([
     html.Div(children='Regulator PID dla modelu ogrzewania pomieszczenia', style={'fontSize': 24, 'fontWeight': 'bold', 'textAlign': 'center'}),
     
 
-    html.Div(children='Powierzchnia ścian pomieszczenia (m2)'),
-    dcc.Input(id='room_volume', type='number', value=0, step=1),
+    html.Div(children='Objetosc pomieszczenia (m³)'),
+    dcc.Input(id='room_volume', type='number', value=32, step=1),
+    
 
     html.Div(children='Maksymalna moc grzałki (W)'),
-    dcc.Input(id='heater_power', type='number', value=0, step=10),
+    dcc.Input(id='heater_power', type='number', value=1200, step=10),
 
     html.Div(id='slider_start_output'),
     dcc.Slider(0,30,1, value=15, id='slider_start'),
 
     html.Div(id='slider_set_output'),
-    dcc.Slider(0,30,1, value=15, id='slider_set'),
+    dcc.Slider(0,30,1, value=25, id='slider_set'),
 
     html.Div(id='slider_outside_output'),
     dcc.Slider(-20,30,0.5, value=0, id='slider_outside'),
     
     html.Div(id='slider_time_output'),
-    dcc.Slider(0,30,1, value=1, id='slider_time'),
+    dcc.Slider(0,420,10, value=300, id='slider_time'),
     
     html.Div("Kp"),
     html.Div(id='kp_output'),
-    dcc.Input(id='kp_input', type='number', value=1, step=0.1),
+    dcc.Input(id='kp_input', type='number', value=8.2, step=0.1),
 
     html.Div("Ti"),
     html.Div(id='ti_output'),
-    dcc.Input(id='ti_input', type='number', value=1, step=0.1),
+    dcc.Input(id='ti_input', type='number', value=200, step=0.1),
 
     html.Div("Td"),
     html.Div(id='td_output'),
@@ -86,7 +87,7 @@ def simTime(value):
 )
 def PID(start_value, set_value, sim_time, kp, ti, td, room_volume, heater_power, outside_temp):
     e = []
-    U = 0.3 # wspolczynnik strat ciepla
+    U = 0.2 # wspolczynnik strat ciepla
     control_output = []
     temperature = []
     air_density = []
@@ -97,12 +98,13 @@ def PID(start_value, set_value, sim_time, kp, ti, td, room_volume, heater_power,
     integral = 0
     error = 0
     previous_error = 0
+    walls = pow(room_volume, 2/3) * 6
     cp = 1005 # srednia pojemnosc cieplna powietrza
     for _ in range(secondsSimTime):
-        m = airDencity(current_value)
+        m = airDencity(current_value) * room_volume
         air_density.append(m)
         temperature.append(current_value)
-        qLoss = U * room_volume * (current_value - outside_temp)
+        qLoss = U * walls * (current_value - outside_temp)
         error = set_value - current_value
         e.append(error)
 
@@ -121,12 +123,12 @@ def PID(start_value, set_value, sim_time, kp, ti, td, room_volume, heater_power,
         dcc.Graph(
             figure={
                 'data': [
-                    {'x': list(range(len(temperature))), 'y': temperature, 'type': 'line', 'name': 'Temperatura'},
-                    {'x': list(range(len(temperature))), 'y': [set_value] * len(temperature), 'type': 'line', 'name': 'Temperatura zadana', 'line': {'dash': 'dash'}},
+                    {'x': [i / 60 for i in range(len(temperature))], 'y': temperature, 'type': 'line', 'name': 'Temperatura'},
+                    {'x': [i / 60 for i in range(len(temperature))], 'y': [set_value] * len(temperature), 'type': 'line', 'name': 'Temperatura zadana', 'line': {'dash': 'dash'}},
                 ],
                 'layout': {
                     'title': 'Wykres temperatury w czasie',
-                    'xaxis': {'title': 'Czas (s)'},
+                    'xaxis': {'title': 'Czas (min)'},
                     'yaxis': {'title': 'Temperatura (°C)'},
                 }
             }
@@ -134,11 +136,11 @@ def PID(start_value, set_value, sim_time, kp, ti, td, room_volume, heater_power,
         dcc.Graph(
             figure={
                 'data': [
-                    {'x': list(range(len(air_density))), 'y': air_density, 'type': 'line', 'name': 'Gęstość powietrza'},
+                    {'x': [i / 60 for i in range(len(air_density))], 'y': air_density, 'type': 'line', 'name': 'Gęstość powietrza'},
                 ],
                 'layout': {
                     'title': 'Wykres gęstości powietrza w czasie',
-                    'xaxis': {'title': 'Czas (s)'},
+                    'xaxis': {'title': 'Czas (min)'},
                     'yaxis': {'title': 'Gęstość powietrza (kg/m³)'},
                 }
             }
@@ -146,9 +148,9 @@ def PID(start_value, set_value, sim_time, kp, ti, td, room_volume, heater_power,
     ])
 
 def airDencity(temperature):
-    P = 101325
-    R = 287.058
-    T = temperature + 273.15
+    P = 101325 # pressure in Pa
+    R = 287.058 # stala gazowa
+    T = temperature + 273.15 # Kelviny
     return P/(R*T)
 
 if __name__ == '__main__':
