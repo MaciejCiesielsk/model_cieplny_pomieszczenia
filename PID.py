@@ -136,12 +136,24 @@ def PID(start_value, set_value, sim_time, kp, ti, td, room_volume, heater_power,
         dcc.Graph(
             figure={
                 'data': [
-                    {'x': [i / 60 for i in range(len(air_density))], 'y': air_density, 'type': 'line', 'name': 'Gęstość powietrza'},
+                    {'x': [i / 60 for i in range(len(air_density))], 'y': air_density, 'type': 'line', 'name': 'Masa powietrza'},
                 ],
                 'layout': {
-                    'title': 'Wykres gęstości powietrza w czasie',
+                    'title': 'Wykres masy powietrza w czasie',
                     'xaxis': {'title': 'Czas (min)'},
-                    'yaxis': {'title': 'Gęstość powietrza (kg/m³)'},
+                    'yaxis': {'title': 'Masa powietrza (kg)'},
+                }
+            }
+        ),
+        dcc.Graph(
+            figure={
+                'data': [
+                    {'x': [i / 60 for i in range(len(e))], 'y': e, 'type': 'line', 'name': 'Błąd'},
+                ],
+                'layout': {
+                    'title': 'Wykres błędu w czasie',
+                    'xaxis': {'title': 'Czas (min)'},
+                    'yaxis': {'title': 'Błąd (°C)'},
                 }
             }
         )
