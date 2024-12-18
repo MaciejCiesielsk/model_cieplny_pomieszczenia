@@ -122,6 +122,7 @@ def PID(start_value, set_value, sim_time, kp, ti, td, room_volume, heater_power,
             figure={
                 'data': [
                     {'x': list(range(len(temperature))), 'y': temperature, 'type': 'line', 'name': 'Temperatura'},
+                    {'x': list(range(len(temperature))), 'y': [set_value] * len(temperature), 'type': 'line', 'name': 'Temperatura zadana', 'line': {'dash': 'dash'}},
                 ],
                 'layout': {
                     'title': 'Wykres temperatury w czasie',
