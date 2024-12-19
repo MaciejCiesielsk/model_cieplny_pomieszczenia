@@ -1,10 +1,10 @@
+import dash
 from dash import Dash, dcc, html, Input, Output, callback
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+dash.register_page(__name__)
 
-app = Dash(__name__, external_stylesheets=external_stylesheets)
-
-app.layout = html.Div([
+layout = html.Div([
+    
 
     html.Div(children='Regulator PID dla modelu ogrzewania pomieszczenia', style={'fontSize': 24, 'fontWeight': 'bold', 'textAlign': 'center'}),
     
@@ -165,5 +165,3 @@ def airDencity(temperature):
     T = temperature + 273.15 # Kelviny
     return P/(R*T)
 
-if __name__ == '__main__':
-    app.run(debug=True)
