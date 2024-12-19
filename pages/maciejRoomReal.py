@@ -1,5 +1,5 @@
 import dash
-from dash import Dash, dcc, html, Input, Output, callback
+from dash import dcc, html, Input, Output, callback, State
 
 dash.register_page(__name__)
 
@@ -9,65 +9,76 @@ layout = html.Div([
         style={'fontSize': 24, 'fontWeight': 'bold', 'textAlign': 'center'}
     ),
     html.Div(
-        'Symulacja pokoju macieja przy założeniach, że:  pokoj jest szescianem i tylko 1 sciana wychodzi na dwor jak faktycznie (reszta scian nie zaklada strat ciepla)'
+        'Symulacja pokoju macieja przy założeniach, że:  pokój jak w prawdziwym życiu ma 1 ścianę zewnętrzną, a grzejnik ma moc 100W na m2'
     ),
-    html.Div(id='maciej2_start_output'),
+    html.Div(id='maciej_start_output2'),
     dcc.Slider(0, 30, 1, value=15, id='slider_start'),
-    html.Div(id='maciej2_set_output'),
+    html.Div(id='maciej_set_output2'),
     dcc.Slider(0, 30, 1, value=25, id='slider_set'),
-    html.Div(id='maciej2_outside_output'),
+    html.Div(id='maciej_outside_output2'),
     dcc.Slider(-20, 30, 0.5, value=0, id='slider_outside'),
-    html.Div(id='maciej2_time_output'),
-    dcc.Slider(0, 420, 10, value=300, id='slider_time'),
-    
 
-    html.Div(id='maciej2_output'),
+    html.Button('Start Symulacji', id='start_button', n_clicks=0),
+    html.Button('Reset', id='reset_button', n_clicks=0),
+
+    html.Div(id='maciej_output2'),
+
+    dcc.Graph(id='temperature_graph2', figure={'data': [], 'layout': {'title': 'Wykres temperatury w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Temperatura (°C)'}}}),
+    dcc.Graph(id='heater_power_graph2', figure={'data': [], 'layout': {'title': 'Wykres mocy grzałki w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Moc (W)'}}}),
+    dcc.Graph(id='error_graph2', figure={'data': [], 'layout': {'title': 'Wykres błędu w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Błąd (°C)'}}}),
+    dcc.Store(id='previous_results2', data={'temperature': [], 'control_output': [], 'error': []})
 ])
 
 @callback(
-    Output('maciej2_outside_output', 'children'),
+    Output('maciej_outside_output2', 'children'),
     Input('slider_outside', 'value')
 )
 def tempOutside(value):
     return f'Temperaura zewnetrzna: {value}'
 
 @callback(
-    Output('maciej2_start_output', 'children'),
+    Output('maciej_start_output2', 'children'),
     Input('slider_start', 'value')
 )
 def startValue(value):
     return f'Temperaura poczatkowa: {value}'
 
 @callback(
-    Output('maciej2_set_output', 'children'),
+    Output('maciej_set_output2', 'children'),
     Input('slider_set', 'value')
 )
 def setValue(value):
     return f'Temperaura zadana: {value}'
 
 @callback(
-    Output('maciej2_time_output', 'children'),
-    Input('slider_time', 'value')
+    Output('maciej_output2', 'children'),
+    Output('temperature_graph2', 'figure'),
+    Output('heater_power_graph2', 'figure'),
+    Output('error_graph2', 'figure'),
+    Output('previous_results2', 'data'),
+    Input('start_button', 'n_clicks'),
+    Input('reset_button', 'n_clicks'),
+    State('slider_start', 'value'),
+    State('slider_set', 'value'),
+    State('slider_outside', 'value'),
+    State('previous_results2', 'data')
 )
-def simTime(value):
-    return f'Czas symulacji: {value} min'
+def PID(start_clicks, reset_clicks, start_value, set_value, outside_temp, previous_results):
+    if dash.callback_context.triggered[0]['prop_id'].split('.')[0] == 'reset_button':
+        return html.Div(), {
+            'data': [], 
+            'layout': {'title': 'Wykres temperatury w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Temperatura (°C)'}}}, {'data': [], 'layout': {'title': 'Wykres mocy grzałki w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Moc (W)'}}}, {'data': [], 'layout': {'title': 'Wykres błędu w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Błąd (°C)'}}}, {'temperature': [], 'control_output': [], 'error': []}
 
-@callback(
-    Output('maciej2_output', 'children'),
-    Input('slider_start', 'value'),
-    Input('slider_set', 'value'),
-    Input('slider_time', 'value'),
-    Input('slider_outside', 'value'),
+    if not dash.callback_context.triggered or dash.callback_context.triggered[0]['prop_id'].split('.')[0] != 'start_button':
+        return dash.no_update
 
-)
-def PID(start_value, set_value, sim_time, outside_temp):
     e = []
     U = 0.2  # wspolczynnik strat ciepla
     control_output = []
     temperature = []
     air_density = []
     current_value = start_value
-    secondsSimTime = sim_time * 60
+    secondsSimTime = 300 * 60
     timeStep = 1
     qMax = 1200
     integral = 0
@@ -75,8 +86,8 @@ def PID(start_value, set_value, sim_time, outside_temp):
     previous_error = 0
     room_volume = 34
     kp = 40
-    ti = 600
-    td = 1
+    ti = 400
+    td = 500
     walls = pow(room_volume, 2/3) * 1
     cp = 1005  # srednia pojemnosc cieplna powietrza
     for _ in range(secondsSimTime):
@@ -99,46 +110,51 @@ def PID(start_value, set_value, sim_time, outside_temp):
         current_value += (pidValue - qLoss) / (m * cp)
         previous_error = error
         
-    return html.Div([
-        dcc.Graph(
-            figure={
-                'data': [
-                    {'x': [i / 60 for i in range(len(temperature))], 'y': temperature, 'type': 'line', 'name': 'Temperatura'},
-                    {'x': [i / 60 for i in range(len(temperature))], 'y': [set_value] * len(temperature), 'type': 'line', 'name': 'Temperatura zadana', 'line': {'dash': 'dash'}},
-                ],
-                'layout': {
-                    'title': 'Wykres temperatury w czasie',
-                    'xaxis': {'title': 'Czas (min)'},
-                    'yaxis': {'title': 'Temperatura (°C)'},
-                }
-            }
-        ),
-        dcc.Graph(
-            figure={
-                'data': [
-                    {'x': [i / 60 for i in range(len(control_output))], 'y': control_output, 'type': 'line', 'name': 'Moc grzałki'},
-                ],
-                'layout': {
-                    'title': 'Wykres mocy grzałki w czasie',
-                    'xaxis': {'title': 'Czas (min)'},
-                    'yaxis': {'title': 'Moc (W)'},
-                }
-            }
-        ),
-        dcc.Graph(
-            figure={
-                'data': [
-                    {'x': [i / 60 for i in range(len(e))], 'y': e, 'type': 'line', 'name': 'Błąd'},
-                ],
-                'layout': {
-                    'title': 'Wykres błędu w czasie',
-                    'xaxis': {'title': 'Czas (min)'},
-                    'yaxis': {'title': 'Błąd (°C)'},
-                }
-            }
-        ),
-        
-    ])
+    temperature_fig = {
+        'data': [
+            {'x': [i / 60 for i in range(len(temperature))], 'y': temperature, 'type': 'line', 'name': 'Temperatura'},
+            {'x': [i / 60 for i in range(len(temperature))], 'y': [set_value] * len(temperature), 'type': 'line', 'name': 'Temperatura zadana', 'line': {'dash': 'dash'}},
+            {'x': [i / 60 for i in range(len(previous_results['temperature']))], 'y': previous_results['temperature'], 'type': 'line', 'name': 'Poprzednia Temperatura', 'line': {'dash': 'dash', 'color': 'gray'}}
+        ],
+        'layout': {
+            'title': 'Wykres temperatury w czasie',
+            'xaxis': {'title': 'Czas (min)'},
+            'yaxis': {'title': 'Temperatura (°C)'},
+        }
+    }
+
+    heater_power_fig = {
+        'data': [
+            {'x': [i / 60 for i in range(len(control_output))], 'y': control_output, 'type': 'line', 'name': 'Moc grzałki'},
+            {'x': [i / 60 for i in range(len(previous_results['control_output']))], 'y': previous_results['control_output'], 'type': 'line', 'name': 'Poprzednia Moc grzałki', 'line': {'dash': 'dash', 'color': 'gray'}}
+        ],
+        'layout': {
+            'title': 'Wykres mocy grzałki w czasie',
+            'xaxis': {'title': 'Czas (min)'},
+            'yaxis': {'title': 'Moc (W)'},
+        }
+    }
+
+    error_fig = {
+        'data': [
+            {'x': [i / 60 for i in range(len(e))], 'y': e, 'type': 'line', 'name': 'Błąd'},
+            {'x': [i / 60 for i in range(len(previous_results['error']))], 'y': previous_results['error'], 'type': 'line', 'name': 'Poprzedni Błąd', 'line': {'dash': 'dash', 'color': 'gray'}}
+        ],
+        'layout': {
+            'title': 'Wykres błędu w czasie',
+            'xaxis': {'title': 'Czas (min)'},
+            'yaxis': {'title': 'Błąd (°C)'},
+        }
+    }
+
+    new_results = {
+        'temperature': temperature,
+        'control_output': control_output,
+        'error': e
+    }
+
+    return html.Div(), temperature_fig, heater_power_fig, error_fig, new_results
+
 
 def airDensity(temperature):
     P = 101325  # pressure in Pa

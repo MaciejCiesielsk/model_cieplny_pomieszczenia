@@ -90,19 +90,15 @@ def setValue(value):
     State('previous_results', 'data')
 )
 def PID(start_clicks, reset_clicks, start_value, set_value, kp, ti, td, room_volume, heater_power, outside_temp, offset, previous_results):
-    ctx = dash.callback_context
-
-    if not ctx.triggered:
-        return html.Div(), {
-            'data': [], 
-            'layout': {'title': 'Wykres temperatury w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Temperatura (°C)'}}}, {'data': [], 'layout': {'title': 'Wykres mocy grzałki w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Moc (W)'}}}, {'data': [], 'layout': {'title': 'Wykres błędu w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Błąd (°C)'}}}, previous_results
-
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-
-    if button_id == 'reset_button':
+    if dash.callback_context.triggered[0]['prop_id'].split('.')[0] == 'reset_button':
         return html.Div(), {
             'data': [], 
             'layout': {'title': 'Wykres temperatury w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Temperatura (°C)'}}}, {'data': [], 'layout': {'title': 'Wykres mocy grzałki w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Moc (W)'}}}, {'data': [], 'layout': {'title': 'Wykres błędu w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Błąd (°C)'}}}, {'temperature': [], 'control_output': [], 'error': []}
+
+    if not dash.callback_context.triggered:
+        return html.Div(), {
+            'data': [], 
+            'layout': {'title': 'Wykres temperatury w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Temperatura (°C)'}}}, {'data': [], 'layout': {'title': 'Wykres mocy grzałki w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Moc (W)'}}}, {'data': [], 'layout': {'title': 'Wykres błędu w czasie', 'xaxis': {'title': 'Czas (min)'}, 'yaxis': {'title': 'Błąd (°C)'}}}, previous_results
 
     e = []
     U = 0.2 # wspolczynnik strat ciepla
