@@ -4,58 +4,61 @@ from dash import Dash, dcc, html, Input, Output, callback
 dash.register_page(__name__)
 
 layout = html.Div([
-    html.Div(children='Regulator PID dla pokoju Macieja symulator', style={'fontSize': 24, 'fontWeight': 'bold', 'textAlign': 'center'}),
-    
-    html.Div(id='maciej_start_output'),
+    html.Div(
+        children='Regulator PID dla pokoju Macieja symulator', 
+        style={'fontSize': 24, 'fontWeight': 'bold', 'textAlign': 'center'}
+    ),
+    html.Div(
+        'Symulacja pokoju macieja przy założeniach, że:  pokoj jest szescianem i tylko 1 sciana wychodzi na dwor jak faktycznie (reszta scian nie zaklada strat ciepla)'
+    ),
+    html.Div(id='maciej2_start_output'),
     dcc.Slider(0, 30, 1, value=15, id='slider_start'),
-
-    html.Div(id='maciej_set_output'),
+    html.Div(id='maciej2_set_output'),
     dcc.Slider(0, 30, 1, value=25, id='slider_set'),
-
-    html.Div(id='maciej_outside_output'),
+    html.Div(id='maciej2_outside_output'),
     dcc.Slider(-20, 30, 0.5, value=0, id='slider_outside'),
-    
-    html.Div(id='maciej_time_output'),
+    html.Div(id='maciej2_time_output'),
     dcc.Slider(0, 420, 10, value=300, id='slider_time'),
     
 
-    html.Div(id='maciej_output'),
+    html.Div(id='maciej2_output'),
 ])
 
 @callback(
-    Output('maciej_outside_output', 'children'),
+    Output('maciej2_outside_output', 'children'),
     Input('slider_outside', 'value')
 )
 def tempOutside(value):
     return f'Temperaura zewnetrzna: {value}'
 
 @callback(
-    Output('maciej_start_output', 'children'),
+    Output('maciej2_start_output', 'children'),
     Input('slider_start', 'value')
 )
 def startValue(value):
     return f'Temperaura poczatkowa: {value}'
 
 @callback(
-    Output('maciej_set_output', 'children'),
+    Output('maciej2_set_output', 'children'),
     Input('slider_set', 'value')
 )
 def setValue(value):
     return f'Temperaura zadana: {value}'
 
 @callback(
-    Output('maciej_time_output', 'children'),
+    Output('maciej2_time_output', 'children'),
     Input('slider_time', 'value')
 )
 def simTime(value):
     return f'Czas symulacji: {value} min'
 
 @callback(
-    Output('maciej_output', 'children'),
+    Output('maciej2_output', 'children'),
     Input('slider_start', 'value'),
     Input('slider_set', 'value'),
     Input('slider_time', 'value'),
-    Input('slider_outside', 'value')
+    Input('slider_outside', 'value'),
+
 )
 def PID(start_value, set_value, sim_time, outside_temp):
     e = []
@@ -71,10 +74,10 @@ def PID(start_value, set_value, sim_time, outside_temp):
     error = 0
     previous_error = 0
     room_volume = 34
-    kp = 10
-    ti = 250
+    kp = 40
+    ti = 600
     td = 1
-    walls = pow(room_volume, 2/3) * 6
+    walls = pow(room_volume, 2/3) * 1
     cp = 1005  # srednia pojemnosc cieplna powietrza
     for _ in range(secondsSimTime):
         m = airDensity(current_value) * room_volume
@@ -82,6 +85,7 @@ def PID(start_value, set_value, sim_time, outside_temp):
         temperature.append(current_value)
         qLoss = U * walls * (current_value - outside_temp)
         error = set_value - current_value
+        error = max(min(error, 2), -2)  # maksymalny blad 2 stopnie, zeby nie lecialo do 30 stopni
         e.append(error)
 
         proportional = error
@@ -112,12 +116,12 @@ def PID(start_value, set_value, sim_time, outside_temp):
         dcc.Graph(
             figure={
                 'data': [
-                    {'x': [i / 60 for i in range(len(air_density))], 'y': air_density, 'type': 'line', 'name': 'Masa powietrza'},
+                    {'x': [i / 60 for i in range(len(control_output))], 'y': control_output, 'type': 'line', 'name': 'Moc grzałki'},
                 ],
                 'layout': {
-                    'title': 'Wykres masy powietrza w czasie',
+                    'title': 'Wykres mocy grzałki w czasie',
                     'xaxis': {'title': 'Czas (min)'},
-                    'yaxis': {'title': 'Masa powietrza (kg)'},
+                    'yaxis': {'title': 'Moc (W)'},
                 }
             }
         ),
@@ -132,7 +136,8 @@ def PID(start_value, set_value, sim_time, outside_temp):
                     'yaxis': {'title': 'Błąd (°C)'},
                 }
             }
-        )
+        ),
+        
     ])
 
 def airDensity(temperature):
