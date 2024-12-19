@@ -11,6 +11,7 @@ layout = html.Div([
     html.Div(
         'Symulacja pokoju macieja przy założeniach, że:  pokój jak w prawdziwym życiu ma 1 ścianę zewnętrzną, a grzejnik ma moc 100W na m2'
     ),
+    html.Div('Czas próbkowania: 1s'),
     html.Div(id='maciej_start_output2'),
     dcc.Slider(0, 30, 1, value=15, id='slider_start'),
     html.Div(id='maciej_set_output2'),
