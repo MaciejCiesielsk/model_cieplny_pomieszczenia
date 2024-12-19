@@ -25,6 +25,10 @@ layout = html.Div([
     html.Div(id='slider_time_output'),
     dcc.Slider(0, 420, 10, value=300, id='slider_time'),
 
+    html.Div("Blokada na blad"),
+    html.Div(id='error_output'),
+    dcc.Input(id='error_input', type='number', value=2, step=0.1),
+
     html.Div("Kp"),
     html.Div(id='kp_output'),
     dcc.Input(id='kp_input', type='number', value=8.2, step=0.1),
@@ -78,9 +82,10 @@ def simTime(value):
     Input('td_input', 'value'),
     Input('room_volume', 'value'),
     Input('heater_power', 'value'),
-    Input('slider_outside', 'value')
+    Input('slider_outside', 'value'),
+    Input('error_input', 'value'),
 )
-def PID(start_value, set_value, sim_time, kp, ti, td, room_volume, heater_power, outside_temp):
+def PID(start_value, set_value, sim_time, kp, ti, td, room_volume, heater_power, outside_temp, offset):
     if None in [start_value, set_value, sim_time, kp, ti, td, room_volume, heater_power, outside_temp]:
         return html.Div("Error: All input values must be provided and not None.")
     e = []
@@ -103,7 +108,7 @@ def PID(start_value, set_value, sim_time, kp, ti, td, room_volume, heater_power,
         temperature.append(current_value)
         qLoss = U * walls * (current_value - outside_temp)
         error = set_value - current_value
-        error = max(min(error, 2), -2)  # maksymalny blad 2 stopnie, zeby nie lecialo do 30 stopni
+        error = max(min(error, offset), -offset)  # maksymalny blad 2 stopnie, zeby nie lecialo do 30 stopni
         e.append(error)
 
         proportional = error
