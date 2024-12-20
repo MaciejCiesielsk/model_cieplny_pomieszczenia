@@ -86,9 +86,9 @@ def PID(start_clicks, reset_clicks, start_value, set_value, outside_temp, previo
     error = 0
     previous_error = 0
     room_volume = 34
-    kp = 40
-    ti = 400
-    td = 500
+    kp = 50
+    ti = 700
+    td = 300
     walls = pow(room_volume, 2/3) * 1
     cp = 1005  # srednia pojemnosc cieplna powietrza
     for _ in range(secondsSimTime):
