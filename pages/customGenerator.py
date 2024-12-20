@@ -5,8 +5,8 @@ dash.register_page(__name__)
 
 layout = html.Div([
     html.Div(children='Symulator ogrzewania pomieszczenia', style={'fontSize': 24, 'fontWeight': 'bold', 'textAlign': 'center'}),
-    html.Div('Tutaj zakładamy, że pomieszczenie jest wiszącym sześcianem z dostępem do dworu z każdej strony. Mocą grzejnika można sterować.'),
-    html.Div('Czas próbkowania: 1s'),
+    html.H5('Tutaj zakładamy, że pomieszczenie jest wiszącym sześcianem z dostępem do dworu z każdej strony. Mocą grzejnika można sterować.'),
+    html.Div('Czas próbkowania: 1s', style={'fontSize': 24, 'fontWeight': 'bold', 'textAlign': 'right'}),
 
     html.Div(children='Objetosc pomieszczenia (m³)'),
     dcc.Input(id='room_volume', type='number', value=32, step=1),
@@ -29,15 +29,15 @@ layout = html.Div([
 
     html.Div("Kp"),
     html.Div(id='kp_output'),
-    dcc.Input(id='kp_input', type='number', value=40, step=0.1),
+    dcc.Slider(0, 100, 10, value=40, id='kp_input'),
 
     html.Div("Ti"),
     html.Div(id='ti_output'),
-    dcc.Input(id='ti_input', type='number', value=400, step=0.1),
+    dcc.Slider(0, 700, 50, value=300, id='ti_input'),
 
     html.Div("Td"),
     html.Div(id='td_output'),
-    dcc.Input(id='td_input', type='number', value=50, step=0.1),
+    dcc.Slider(0, 400, 20, value=100, id='td_input'),
 
     html.Button('Start Symulacji', id='start_button', n_clicks=0),
     html.Button('Reset', id='reset_button', n_clicks=0),
