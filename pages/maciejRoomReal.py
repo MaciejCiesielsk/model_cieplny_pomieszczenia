@@ -104,7 +104,7 @@ def PID(start_clicks, reset_clicks, start_value, set_value, outside_temp, previo
         integral += error * timeStep
         derivative = (error - previous_error) / timeStep
 
-        pidValue = kp * (proportional + (1/ti) * integral + td * derivative)
+        pidValue = kp * proportional + (kp/ti) * integral + kp * td * derivative
         pidValue = max(min(pidValue, qMax), 0)
         
         control_output.append(pidValue)

@@ -7,3 +7,20 @@ zeby dzialalo trzeba pobrac dasha - moze byc wymagany venv do tego
 * kp ti td ma byc suwakiem RACZEJ ZOSTAWIE JAK JEST
 * przycisk reset do usuwania starych wykresow  JEST DZIALA
 * czas symulacji hardcoded  DZIALA
+
+# Dlaczego takie duze wartosci parametrow?
+* dostosowane do specyficznych wlasnosci systemu - duza pojemnosc pomieszczenia i moc grzewcza
+* zeby system byl stabilny trzeba bylo duze parametry
+* moze byc ten kompensacja strat - np slaba izolacja i trzeba nadrobic uciekanie ciepla 
+* dostosowanie do warunkow zewnetrznych
+
+
+# Dlaczego uklad jest inercyjny?
+Zawiera charakterysyczne dla ukladu inercyjnego parametry:
+* pojemnosc cieplna - pomieszczenie ma okreslona gestosc powietrza i pojemnosc cieplna, co powoduje stopniowa zmiane temp a nie instant
+* utrata ciepla - zalezy od temperatury na dwore i to powoduje opoznienie w dzialaniu
+
+# Poszczegolne czlony regulatora
+* P - odpowiada bezposrednio na biezacy blad, im wiekszy blad tym wieksza odpowiedz regulatora (intensywnosc odpowiedzi na blad)
+* I - odpowiaa na sume bledow w czasie, dziala wolniej ale zapewnia dokladnosc w dlozszym okresie
+* D - odpowiada na szybkosc zmiany bledu, co pozwala dzilac szybciej i przewidziec pryszle bledy
