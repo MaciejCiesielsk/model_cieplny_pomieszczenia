@@ -27,3 +27,21 @@ Zawiera charakterysyczne dla ukladu inercyjnego parametry:
 
 # Co to jest za wspolczynnik izolacji
 od stycznia 2021 roku nie może przekraczać 0,20 W/(m²·K) - waty na metr kwadratowy razy kelwin (wspolczynnik przenikania ciepla U)
+
+
+suwak do probkowania na kilka wartosci 0,05 0,25 0,1
+kp maly zakres
+ti tez jakies do 30 powiedzmy
+bez bledu w czasie i sztuczne ograniczenie bledu
+front zmienic zeby bylo przyjemne dla oka
+
+
+pierwsza strona
+autorzy
+wzory
+
+potem 2-3 strony wytlumaczenia scenariuszow
+komentowanie roznych wariantow stanow regulatora
+
+
+poniedzialek mozna konsultacje
