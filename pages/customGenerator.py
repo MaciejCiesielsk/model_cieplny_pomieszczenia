@@ -29,7 +29,7 @@ layout = html.Div([
 
     html.Div("Kp"),
     html.Div(id='kp_output'),
-    dcc.Slider(0, 100, 10, value=40, id='kp_input'),
+    dcc.Slider(0, 100, 5, value=40, id='kp_input'),
 
     html.Div("Ti"),
     html.Div(id='ti_output'),
