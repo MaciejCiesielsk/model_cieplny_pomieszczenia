@@ -17,7 +17,7 @@ layout = html.Div([
     html.Div(id='maciej_set_output'),
     dcc.Slider(0, 30, 1, value=25, id='slider_set'),
     html.Div(id='maciej_outside_output'),
-    dcc.Slider(-20, 30, 0.5, value=0, id='slider_outside'),
+    dcc.Slider(-20, 30, 1, value=0, id='slider_outside'),
 
     html.Button('Start Symulacji', id='start_button', n_clicks=0),
     html.Button('Reset', id='reset_button', n_clicks=0),

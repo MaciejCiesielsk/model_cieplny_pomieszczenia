@@ -21,7 +21,7 @@ layout = html.Div([
     dcc.Slider(0, 30, 1, value=25, id='slider_set'),
 
     html.Div(id='slider_outside_output'),
-    dcc.Slider(-20, 30, 0.5, value=0, id='slider_outside'),
+    dcc.Slider(-20, 30, 1, value=0, id='slider_outside'),
 
     html.Div("Blokada na blad"),
     html.Div(id='error_output'),
