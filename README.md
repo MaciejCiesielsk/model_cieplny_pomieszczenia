@@ -22,5 +22,8 @@ Zawiera charakterysyczne dla ukladu inercyjnego parametry:
 
 # Poszczegolne czlony regulatora
 * P - odpowiada bezposrednio na biezacy blad, im wiekszy blad tym wieksza odpowiedz regulatora (intensywnosc odpowiedzi na blad)
-* I - odpowiaa na sume bledow w czasie, dziala wolniej ale zapewnia dokladnosc w dlozszym okresie
+* I - odpowiaa na sume bledow w czasie, dziala wolniej ale zapewnia dokladnosc w dluzszym okresie
 * D - odpowiada na szybkosc zmiany bledu, co pozwala dzilac szybciej i przewidziec pryszle bledy
+
+# Co to jest za wspolczynnik izolacji
+od stycznia 2021 roku nie może przekraczać 0,20 W/(m²·K) - waty na metr kwadratowy razy kelwin (wspolczynnik przenikania ciepla U)
