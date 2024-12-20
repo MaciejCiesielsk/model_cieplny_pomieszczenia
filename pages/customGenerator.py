@@ -115,10 +115,10 @@ def PID(start_clicks, reset_clicks, start_value, set_value, kp, ti, td, room_vol
     walls = pow(room_volume, 2/3) * 6
     cp = 1005 # srednia pojemnosc cieplna powietrza
     for _ in range(secondsSimTime):
-        m = airDencity(current_value) * room_volume
+        m = airDencity(current_value) * room_volume  # obliczanie masy powietrza
         air_density.append(m)
         temperature.append(current_value)
-        qLoss = U * walls * (current_value - outside_temp)
+        qLoss = U * walls * (current_value - outside_temp)  # stala U * powierzchnia scian * roznica temperatury
         error = set_value - current_value
         error = max(min(error, offset), -offset)  # maksymalny blad 2 stopnie, zeby nie lecialo do 30 stopni
         e.append(error)
@@ -126,16 +126,12 @@ def PID(start_clicks, reset_clicks, start_value, set_value, kp, ti, td, room_vol
         proportional = error
         integral += error * timeStep
         derivative = (error - previous_error) / timeStep
-        if timeStep == 0:
-            derivative = 0
-        else:
-            derivative = max(min(derivative, 2), -2)
-
+        
         pidValue = kp * proportional + (kp/ti) * integral + kp * td * derivative
-        pidValue = max(min(pidValue, qMax), 0)
+        pidValue = max(min(pidValue, qMax), 0)  # ogranicznik na moc grzalki
 
         control_output.append(pidValue)
-        current_value += (pidValue - qLoss) / (m * cp)
+        current_value += (pidValue - qLoss) / (m * cp)  # obliczanie temperatury z przeksztalcenia wzoru - jest w overleaf 
         previous_error = error
 
 
@@ -188,4 +184,4 @@ def airDencity(temperature):
     P = 101325 # cisnienie in Pa
     R = 287.058 # stala gazowa
     T = temperature + 273.15 # Kelviny
-    return P / (R * T)
+    return P / (R * T) # wzor ze strony na gestosc powietrza
