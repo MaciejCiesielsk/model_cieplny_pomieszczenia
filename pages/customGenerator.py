@@ -122,7 +122,7 @@ def PID(start_clicks, reset_clicks, start_value, set_value, kp, ti, td, room_vol
         error = set_value - current_value
         error = max(min(error, offset), -offset)  # maksymalny blad 2 stopnie, zeby nie lecialo do 30 stopni
         e.append(error)
-
+        
         proportional = error
         integral += error * timeStep
         derivative = (error - previous_error) / timeStep
