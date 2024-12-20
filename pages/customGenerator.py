@@ -29,15 +29,15 @@ layout = html.Div([
 
     html.Div("Kp"),
     html.Div(id='kp_output'),
-    dcc.Input(id='kp_input', type='number', value=8.2, step=0.1),
+    dcc.Input(id='kp_input', type='number', value=40, step=0.1),
 
     html.Div("Ti"),
     html.Div(id='ti_output'),
-    dcc.Input(id='ti_input', type='number', value=200, step=0.1),
+    dcc.Input(id='ti_input', type='number', value=400, step=0.1),
 
     html.Div("Td"),
     html.Div(id='td_output'),
-    dcc.Input(id='td_input', type='number', value=1, step=0.1),
+    dcc.Input(id='td_input', type='number', value=50, step=0.1),
 
     html.Button('Start Symulacji', id='start_button', n_clicks=0),
     html.Button('Reset', id='reset_button', n_clicks=0),
@@ -137,6 +137,7 @@ def PID(start_clicks, reset_clicks, start_value, set_value, kp, ti, td, room_vol
         control_output.append(pidValue)
         current_value += (pidValue - qLoss) / (m * cp)
         previous_error = error
+
 
     temperature_fig = {
         'data': [
